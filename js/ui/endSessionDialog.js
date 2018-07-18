@@ -57,6 +57,8 @@ const EndSessionDialogIface = '<node> \
 <signal name="ConfirmedShutdown" /> \
 <signal name="Canceled" /> \
 <signal name="Closed" /> \
+<signal name="ContinueToShutdown" \
+<signal name = "openUpdateSettings" \
 </interface> \
 </node>';
 
@@ -77,6 +79,24 @@ const logoutDialogContent = {
     confirmButtons: [{ signal: 'ConfirmedLogout',
                        label:  C_("button", "Log Out") }],
     iconStyleClass: 'end-session-dialog-logout-icon',
+    showOtherSessions: false,
+};
+
+
+const scheduledUpdatesDialogContent = {
+    subject: C_("title", "Power Off"),
+    subjectscheduledUpdates: ("title", "You have updates scheduled to happen in 3 hours"), //where to get x hours?
+    description: function() {
+        return ngettext("You need to leave the computer on to get scheduled updates.");
+    },
+    showBatteryWarning: true,
+    confirmButtons: [{ signal: 'ContinueToShutdown',
+                       label:  C_("button", "Continue to shutdown") }, // this should not be the case as this will lead to direct shutdown.
+                     { signal: 'openUpdateSettings',
+                       label:  C_("button", "Change Settings...") },
+                     ],
+    iconName: 'system-shutdown-symbolic',
+    iconStyleClass: 'end-session-dialog-shutdown-icon',
     showOtherSessions: false,
 };
 
@@ -155,7 +175,8 @@ const DialogType = {
   SHUTDOWN: 1 /* GSM_SHELL_END_SESSION_DIALOG_TYPE_SHUTDOWN */,
   RESTART: 2 /* GSM_SHELL_END_SESSION_DIALOG_TYPE_RESTART */,
   UPDATE_RESTART: 3,
-  UPGRADE_RESTART: 4
+  UPGRADE_RESTART: 4,
+  UPDATES_SCHEDULED: 5
 };
 
 const DialogContent = {
@@ -163,7 +184,8 @@ const DialogContent = {
     1 /* DialogType.SHUTDOWN */: shutdownDialogContent,
     2 /* DialogType.RESTART */: restartDialogContent,
     3 /* DialogType.UPDATE_RESTART */: restartUpdateDialogContent,
-    4 /* DialogType.UPGRADE_RESTART */: restartUpgradeDialogContent
+    4 /* DialogType.UPGRADE_RESTART */: restartUpgradeDialogContent,
+    5 /* DialogType.UPDATES_SCHEDULED */: scheduledUpdatesDialogContent
 };
 
 var MAX_USERS_IN_SESSION_DIALOG = 5;
@@ -203,6 +225,15 @@ const UPowerIface = '<node> \
 </node>';
 
 const UPowerProxy = Gio.DBusProxy.makeProxyWrapper(UPowerIface);
+
+const SchedulerInterface = '\
+<node> \
+  <interface name="com.endlessm.DownloadManager1.Scheduler"> \
+    <property name="EntryCount" type="u" access="read" /> \
+  </interface> \
+</node>';
+
+const SchedulerProxy = Gio.DBusProxy.makeProxyWrapper(SchedulerInterface);
 
 function findAppFromInhibitor(inhibitor) {
     let desktopFile;
@@ -307,6 +338,20 @@ var EndSessionDialog = new Lang.Class({
                                                this._sync();
                                            }));
 
+        // Start retrieving the Mogwai proxy
+        this._proxy = new SchedulerProxy(Gio.DBus.system,
+                                         'com.endlessm.MogwaiScheduler1',
+                                         '/com/endlessm/DownloadManager1',
+                                          (proxy, error) => {
+                                              if (error) {
+                                                  log(error.message);
+                                                  return;
+                                              }
+                                              this._proxy.connect('g-properties-changed',
+                                                                  Lang.bind(this, this._updateStatus());
+                                              this._updateStatus();
+                                          });
+
         this._secondsLeft = 0;
         this._totalSecondsToStayOpen = 0;
         this._applications = [];
@@ -403,6 +448,13 @@ var EndSessionDialog = new Lang.Class({
         this._user.disconnect(this._userChangedId);
     },
 
+    _updateStatus: function()  {
+        if (this._proxy.EntryCount > 0)
+            this._isUpdatesScheduled = true; //adapt the shutdown dialog
+        else
+            this._isUpdatesScheduled = false;
+    },
+
     _sync: function() {
         let open = (this.state == ModalDialog.State.OPENING || this.state == ModalDialog.State.OPENED);
         if (!open)
@@ -415,6 +467,9 @@ var EndSessionDialog = new Lang.Class({
         // Use different title when we are installing updates
         if (dialogContent.subjectWithUpdates && this._checkBox.actor.checked)
             subject = dialogContent.subjectWithUpdates;
+
+        if (dialogContent.subjectUpdatesScheduled && this._isUpdatesScheduled)
+            subject = dialogContent.subjectAutomaticUpdates;
 
         if (dialogContent.showBatteryWarning) {
             // Warn when running on battery power
@@ -545,6 +600,17 @@ var EndSessionDialog = new Lang.Class({
         } else {
             this._triggerOfflineUpdateCancel(callback);
         }
+
+        //show the regular shutdown dialogContent
+        if (signal == "ContinueToShutdown") {
+            signal = "ConfirmedShutdown";
+              this._triggerShutdownDialog(callback);
+	}
+    },
+
+    _triggerShutdownDialog: function(callback) {
+            callback();
+        });
     },
 
     _onOpened: function() {
