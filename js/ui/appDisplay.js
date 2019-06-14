@@ -1269,7 +1269,7 @@ var FrequentView = class FrequentView extends BaseAppView {
 
         this._parentalControlsManager = ParentalControlsManager.getDefault();
         this._parentalControlsManager.connect('initialized', () => {
-		console('GOT a callback');
+            log('GOT a callback');
             this._redisplay();
         });
     }
@@ -1424,7 +1424,7 @@ var AppSearchProvider = class AppSearchProvider {
     getInitialResultSet(terms, callback, cancellable) {
         // Defer until the parental controls manager is initialised, so the
         // results can be filtered correctly.
-        if (!this._parentalControlsManager.initialized) {
+        if (!this._parentalControlsManager.initialized()) {
             let initializedId = this._parentalControlsManager.connect('initialized', () => {
                 this._parentalControlsManager.disconnect(initializedId);
                 this.getInitialResultSet(terms, callback, cancellable);
