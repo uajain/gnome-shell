@@ -509,6 +509,16 @@ var SearchResults = class {
     }
 
     _registerProvider(provider) {
+        // Defer until the parental controls manager is initialised, so the
+        // results can be filtered correctly.
+        if (!this._parentalControlsManager.initialized) {
+            let initializedId = this._parentalControlsManager.connect('initialized', () => {
+                // FIXME: Block _registerProvider until this callback returns
+                this._parentalControlsManager.disconnect(initializedId);
+                this._registerProvider(provider);
+            });
+        }
+
         provider.searchInProgress = false;
 
         // Filter out unwanted providers.

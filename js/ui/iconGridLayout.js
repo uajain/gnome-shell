@@ -51,7 +51,11 @@ var IconGridLayout = GObject.registerClass({
         super._init();
 
         this._parentalControlsManager = ParentalControlsManager.getDefault();
-        this._updateIconTree();
+        this._parentalControlsManager.connect('initialized', () => {
+            // FIXME: Execution of _updateIconTree is needed after parentalControlsManager
+            // is initialized, but is probably too late.
+            this._updateIconTree();
+        });
 
         this._removeUndone = false;
 
