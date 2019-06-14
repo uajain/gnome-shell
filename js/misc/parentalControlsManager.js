@@ -43,15 +43,21 @@ function getDefault() {
 // don’t allow fast user switching).
 var ParentalControlsManager = class {
     constructor() {
+        this._initialized = false;
         this._disabled = false;
         this._appFilter = null;
 
         log('Getting parental controls for user ' + Shell.util_get_uid ());
         let connection = Gio.bus_get_sync(Gio.BusType.SYSTEM, null);
         this._manager = new Malcontent.Manager({connection: connection});
+        this._manager.get_app_filter_async(Shell.util_get_uid (), Malcontent.GetAppFilterFlags.NONE,
+                                           null, this._onGetAppFilter.bind(this));
 
+    }
+
+    _onGetAppFilter(object, res) {
         try {
-            this._appFilter = this._manager.get_app_filter(Shell.util_get_uid (), Malcontent.GetAppFilterFlags.NONE, null, null);
+            this._appFilter = this._manager.get_app_filter_finish(res);
         } catch (e) {
             if (e.matches(Malcontent.AppFilterError, Malcontent.AppFilterError.DISABLED)) {
                 log('Parental controls globally disabled');
@@ -60,6 +66,14 @@ var ParentalControlsManager = class {
                 logError(e, 'Failed to get parental controls settings');
             }
         }
+
+        log ('INITALSED');
+        this._initialized = true;
+        this.emit('initialized');
+    }
+
+    get initialized() {
+        return this._initialized;
     }
 
     // Calculate whether the given app (a Gio.DesktopAppInfo) should be shown
@@ -88,3 +102,4 @@ var ParentalControlsManager = class {
         return this._appFilter.is_appinfo_allowed(appInfo);
     }
 }
+Signals.addSignalMethods(ParentalControlsManager.prototype);

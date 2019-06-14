@@ -1268,6 +1268,10 @@ var FrequentView = class FrequentView extends BaseAppView {
         });
 
         this._parentalControlsManager = ParentalControlsManager.getDefault();
+        this._parentalControlsManager.connect('initialized', () => {
+		console('GOT a callback');
+            this._redisplay();
+        });
     }
 
     hasUsefulData() {
@@ -1381,6 +1385,8 @@ var AppSearchProvider = class AppSearchProvider {
 
         this._iconGridLayout = IconGridLayout.getDefault();
         this._systemActions = new SystemActions.getDefault();
+
+        this._parentalControlsManager = ParentalControlsManager.getDefault();
     }
 
     getResultMetas(apps, callback) {
@@ -1416,12 +1422,20 @@ var AppSearchProvider = class AppSearchProvider {
     }
 
     getInitialResultSet(terms, callback, cancellable) {
+        // Defer until the parental controls manager is initialised, so the
+        // results can be filtered correctly.
+        if (!this._parentalControlsManager.initialized) {
+            let initializedId = this._parentalControlsManager.connect('initialized', () => {
+                this._parentalControlsManager.disconnect(initializedId);
+                this.getInitialResultSet(terms, callback, cancellable);
+            });
+        }
+
         let query = terms.join(' ');
         let groups = Shell.AppSystem.search(query);
         let usage = Shell.AppUsage.get_default();
         let results = [];
         let replacementMap = {};
-        let parentalControlsManager = ParentalControlsManager.getDefault();
 
         groups.forEach(group => {
             group = group.filter(appID => {
@@ -1431,7 +1445,7 @@ var AppSearchProvider = class AppSearchProvider {
 
                 // exclude links that are not part of the desktop grid
                 if (!app ||
-                    !parentalControlsManager.shouldShowApp(app) ||
+                    !this._parentalControlsManager.shouldShowApp(app) ||
                     (isLink && !isOnDesktop))
                     return false;
 
