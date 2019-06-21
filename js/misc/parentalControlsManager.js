@@ -103,5 +103,19 @@ var ParentalControlsManager = class {
 
         return this._appFilter.is_appinfo_allowed(appInfo);
     }
+
+    isContentTypeAllowed(contentType) {
+        // Are parental controls disabled at runtime?
+        if (this._disabled)
+            return true;
+
+        // Have we finished initialising yet?
+        if (!this._appFilter) {
+            log('Cannot query if content type ' + contentType + ' is allowed, parental controls not yet initialised');
+            return false;
+        }
+
+        return this._appFilter.is_content_type_allowed(contentType);
+    }
 };
 Signals.addSignalMethods(ParentalControlsManager.prototype);
