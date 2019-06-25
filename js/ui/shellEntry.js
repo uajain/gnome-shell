@@ -4,6 +4,7 @@ const { Clutter, Gio, GObject, Gtk, Shell, St } = imports.gi;
 
 const Animation = imports.ui.animation;
 const BoxPointer = imports.ui.boxpointer;
+const InternetSearch = imports.ui.internetSearch;
 const Main = imports.ui.main;
 const Panel = imports.ui.panel;
 const Params = imports.misc.params;
@@ -185,8 +186,10 @@ var OverviewEntry = GObject.registerClass({
 
     _updateSearchEntryText() {
         let entryText;
+        let internetProvider = InternetSearch.getInternetSearchProvider();
 
-        if (this._parentalControlsManager.isContentTypeAllowed("x-scheme-handler/http")) {
+        if (internetProvider &&
+            this._parentalControlsManager.shouldShowApp(internetProvider.appInfo)) {
             // Set the search entry's text based on the current search engine
             let searchEngine = Util.getSearchEngineName();
 
