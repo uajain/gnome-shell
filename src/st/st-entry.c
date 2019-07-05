@@ -220,7 +220,7 @@ st_entry_hide_password (StEntry *entry)
 
   //TODO: Design question, if no text is in the entry, hide the secondary icon?
   ClutterActor *icon = g_object_new (ST_TYPE_ICON,
-                                     "style-class", "capslock-warning",
+                                     "style-class", "peek-password",
                                      "icon-name", "dialog-password-symbolic",
                                      NULL);
 
@@ -234,26 +234,12 @@ st_entry_show_password (StEntry *entry)
   StEntryPrivate *priv = ST_ENTRY_PRIV (entry);
   clutter_text_set_password_char (CLUTTER_TEXT (priv->entry), 0);
   ClutterActor *icon = g_object_new (ST_TYPE_ICON,
-                                     "style-class", "capslock-warning",
+                                     "style-class", "peek-password",
                                      "icon-name", "system-log-out-symbolic",
                                      NULL);
 
   st_entry_set_secondary_icon (entry, icon);
   priv->show_password = TRUE;
-}
-
-void
-st_entry_toggle_password (StEntry *entry)
-{
-  StEntryPrivate *priv = ST_ENTRY_PRIV (entry);
-
-  g_return_if_fail (st_entry_get_input_purpose (entry) ==
-                    CLUTTER_INPUT_CONTENT_PURPOSE_PASSWORD);
-
-  if (priv->show_password)
-    st_entry_hide_password (entry);
-  else
-    st_entry_show_password (entry);
 }
 
 static void
@@ -1429,6 +1415,26 @@ st_entry_get_hint_actor (StEntry *entry)
 
   priv = ST_ENTRY_PRIV (entry);
   return priv->hint_actor;
+}
+
+/**
+ * st_entry_toggle_peek_password
+ * @entry: a #StEntry
+ *
+ * Toggles between show/hide password of the #StEntry.
+ */
+void
+st_entry_toggle_peek_password (StEntry *entry)
+{
+  StEntryPrivate *priv = ST_ENTRY_PRIV (entry);
+
+  g_return_if_fail (st_entry_get_input_purpose (entry) ==
+                    CLUTTER_INPUT_CONTENT_PURPOSE_PASSWORD);
+
+  if (priv->show_password)
+    st_entry_hide_password (entry);
+  else
+    st_entry_show_password (entry);
 }
 
 /******************************************************************************/

@@ -60,7 +60,7 @@ var EntryMenu = class extends PopupMenu.PopupMenu {
     }
 
     toggle_password() {
-      this._entry.toggle_password();
+      this._entry.toggle_peek_password();
     }
 
     open(animate) {
