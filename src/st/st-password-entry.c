@@ -84,6 +84,7 @@ static void
 st_password_entry_secondary_icon_clicked (StEntry *entry)
 {
 
+	g_print ("Secondary icon clicked\n");
 }
 
 static void
@@ -115,14 +116,15 @@ st_password_entry_init (StPasswordEntry *entry)
   st_entry_set_text (ST_ENTRY (entry), "");
 
   priv->peek_password_icon = g_object_new (ST_TYPE_ICON,
-                                           "style-class", "peek-password",
-                                           "icon-name", "eye-not-looking-symbolic",
+                                           "style-class", "capslock-warning",
+                                           "icon-name", "dialog-warning-symbolic",
                                            NULL);
   st_entry_set_secondary_icon (ST_ENTRY(entry), priv->peek_password_icon);
 
 
   clutter_text = st_entry_get_clutter_text (ST_ENTRY (entry));
-  clutter_text_set_password_char (CLUTTER_TEXT (clutter_text), BLACK_CIRCLE);
+  clutter_text_set_password_char (CLUTTER_TEXT (clutter_text), 0);
+  g_print ("HAHAHAHAHAHAHA!");
 
   st_entry_set_input_purpose (ST_ENTRY (entry), CLUTTER_INPUT_CONTENT_PURPOSE_PASSWORD);
 }

@@ -97,10 +97,10 @@ var AuthenticationDialog = GObject.registerClass({
         content.messageBox.add(this._passwordBox);
         this._passwordLabel = new St.Label(({ style_class: 'prompt-dialog-password-label' }));
         this._passwordBox.add(this._passwordLabel, { y_fill: false, y_align: St.Align.MIDDLE });
-        this._passwordEntry = new St.Entry({ style_class: 'prompt-dialog-password-entry',
+        this._passwordEntry = new St.PasswordEntry({ style_class: 'prompt-dialog-password-entry',
                                              text: "",
                                              can_focus: true });
-        ShellEntry.addContextMenu(this._passwordEntry, { isPassword: true });
+        ShellEntry.addContextMenu(this._passwordEntry, { isPassword: false });
         this._passwordEntry.clutter_text.connect('activate', this._onEntryActivate.bind(this));
         this._passwordBox.add(this._passwordEntry,
                               { expand: true });

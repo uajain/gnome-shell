@@ -110,8 +110,8 @@ var EntryMenu = class extends PopupMenu.PopupMenu {
     }
 
     _onPasswordActivated() {
-        let visible = !!(this._entry.clutter_text.password_char);
-        this._entry.clutter_text.set_password_char(visible ? '' : '\u25cf');
+        //let visible = !!(this._entry.clutter_text.password_char);
+        //this._entry.clutter_text.set_password_char(visible ? '' : '\u25cf');
     }
 };
 
