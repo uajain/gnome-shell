@@ -17,7 +17,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "st-entry.h"
+#include "st-private.h"
+#include "st-password-entry.h"
+#include "st-icon.h"
 
 #define BLACK_CIRCLE 9679
 
@@ -49,7 +51,7 @@ st_password_entry_get_property (GObject    *gobject,
                                 GValue     *value,
                                 GParamSpec *pspec)
 {
-  StEntryPasswordPrivate *priv = ST_PASSWORD_ENTRY_PRIV (gobject);
+  StPasswordEntryPrivate *priv = ST_PASSWORD_ENTRY_PRIV (gobject);
 
   switch (prop_id)
     {
@@ -67,7 +69,7 @@ static void
 st_password_entry_dispose (GObject *object)
 {
   StPasswordEntry *entry = ST_PASSWORD_ENTRY (object);
-  StEntryPasswordPrivate *priv = ST_PASSWORD_ENTRY_PRIV (entry);
+  StPasswordEntryPrivate *priv = ST_PASSWORD_ENTRY_PRIV (entry);
   //ClutterKeymap *keymap;
 
   //cogl_clear_object (&priv->text_shadow_material);
@@ -79,20 +81,19 @@ st_password_entry_dispose (GObject *object)
 }
 
 static void
-st_password_entry_secondary_icon_clicked (StPasswordEntry *entry)
+st_password_entry_secondary_icon_clicked (StEntry *entry)
 {
 
 }
 
 static void
-st_password_entry_class_init (StEntryClass *klass)
+st_password_entry_class_init (StPasswordEntryClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   StEntryClass *st_entry_class = ST_ENTRY_CLASS (klass);
 
-  gobject_class->set_property = st_entry_set_property;
-  gobject_class->get_property = st_entry_get_property;
-  gobject_class->dispose = st_entry_dispose;
+  gobject_class->get_property = st_password_entry_get_property;
+  gobject_class->dispose = st_password_entry_dispose;
 
   st_entry_class->secondary_icon_clicked = st_password_entry_secondary_icon_clicked;
 
@@ -108,7 +109,7 @@ st_password_entry_class_init (StEntryClass *klass)
 static void
 st_password_entry_init (StPasswordEntry *entry)
 {
-  StPasswordEntryPrivate *priv = ST_PASSWORD_ENTRY_PRIV (entry);.
+  StPasswordEntryPrivate *priv = ST_PASSWORD_ENTRY_PRIV (entry);
   ClutterActor *clutter_text;
 
   st_entry_set_text (ST_ENTRY (entry), "");
@@ -132,6 +133,8 @@ st_password_entry_new (void)
   StPasswordEntry *entry;
 
   entry = g_object_new (ST_PASSWORD_TYPE_ENTRY, NULL);
+
+  return entry;
 }
 
 void
@@ -152,4 +155,3 @@ st_password_entry_get_caps_lock_status (StPasswordEntry *entry)
 
   return TRUE;
 }
-

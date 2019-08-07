@@ -17,6 +17,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#if !defined(ST_H_INSIDE) && !defined(ST_COMPILATION)
+#error "Only <st/st.h> can be included directly.h"
+#endif
+
 #ifndef __ST_PASSWORD_ENTRY_H__
 #define __ST_PASSWORD_ENTRY_H__
 
@@ -25,11 +29,12 @@ G_BEGIN_DECLS
 #include <st/st-entry.h>
 
 #define ST_PASSWORD_TYPE_ENTRY (st_password_entry_get_type ())
+
 G_DECLARE_FINAL_TYPE (StPasswordEntry, st_password_entry, ST, PASSWORD_ENTRY, StEntry)
 
 typedef struct _StPasswordEntryPrivate   StPasswordEntryPrivate;
 
-typedef struct _StPasswordEntry   StPasswordEntry;
+typedef struct _StPasswordEntry          StPasswordEntry;
 struct _StPasswordEntry
 {
   /*< private >*/
