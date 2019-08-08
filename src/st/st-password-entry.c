@@ -120,6 +120,7 @@ st_password_entry_init (StPasswordEntry *entry)
                                            "icon-name", "eye-not-looking-symbolic",
                                            NULL);
   st_entry_set_secondary_icon (ST_ENTRY(entry), priv->peek_password_icon);
+  priv->password_shown = FALSE;
   st_password_entry_hide_password (entry);
 
   st_entry_set_input_purpose (ST_ENTRY (entry), CLUTTER_INPUT_CONTENT_PURPOSE_PASSWORD);
