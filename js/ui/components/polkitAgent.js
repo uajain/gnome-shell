@@ -100,7 +100,6 @@ var AuthenticationDialog = GObject.registerClass({
         this._passwordEntry = new St.PasswordEntry({ style_class: 'prompt-dialog-password-entry',
                                              text: "",
                                              can_focus: true });
-        ShellEntry.addContextMenu(this._passwordEntry, { isPassword: false });
         this._passwordEntry.clutter_text.connect('activate', this._onEntryActivate.bind(this));
         this._passwordBox.add(this._passwordEntry,
                               { expand: true });
@@ -261,7 +260,7 @@ var AuthenticationDialog = GObject.registerClass({
         if (echoOn)
             this._passwordEntry.clutter_text.set_password_char('');
         else
-            this._passwordEntry.clutter_text.set_password_char('\u25cf'); // ● U+25CF BLACK CIRCLE
+            //this._passwordEntry.clutter_text.set_password_char('\u25cf'); // ● U+25CF BLACK CIRCLE
 
         this._passwordBox.show();
         this._passwordEntry.set_text('');
