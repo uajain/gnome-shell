@@ -257,10 +257,6 @@ var AuthenticationDialog = GObject.registerClass({
         else
             this._passwordLabel.set_text(request);
 
-        if (echoOn)
-            this._passwordEntry.clutter_text.set_password_char('');
-        else
-            //this._passwordEntry.clutter_text.set_password_char('\u25cf'); // ● U+25CF BLACK CIRCLE
 
         this._passwordBox.show();
         this._passwordEntry.set_text('');

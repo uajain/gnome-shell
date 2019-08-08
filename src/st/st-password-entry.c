@@ -112,6 +112,7 @@ static void
 st_password_entry_init (StPasswordEntry *entry)
 {
   StPasswordEntryPrivate *priv = ST_PASSWORD_ENTRY_PRIV (entry);
+  ClutterActor *clutter_text;
 
   st_entry_set_text (ST_ENTRY (entry), "");
 
@@ -120,8 +121,9 @@ st_password_entry_init (StPasswordEntry *entry)
                                            "icon-name", "eye-not-looking-symbolic",
                                            NULL);
   st_entry_set_secondary_icon (ST_ENTRY(entry), priv->peek_password_icon);
+  clutter_text = st_entry_get_clutter_text (ST_ENTRY (entry));
+  clutter_text_set_password_char (CLUTTER_TEXT (clutter_text), BLACK_CIRCLE);
   priv->password_shown = FALSE;
-  st_password_entry_hide_password (entry);
 
   st_entry_set_input_purpose (ST_ENTRY (entry), CLUTTER_INPUT_CONTENT_PURPOSE_PASSWORD);
 }
@@ -139,8 +141,8 @@ st_password_entry_new (void)
 void
 st_password_entry_show_password (StPasswordEntry *entry)
 {
-  ClutterActor *clutter_text;
   StPasswordEntryPrivate *priv;
+  ClutterActor *clutter_text;
 
   g_return_if_fail (ST_IS_PASSWORD_ENTRY (entry));
 
@@ -157,8 +159,8 @@ st_password_entry_show_password (StPasswordEntry *entry)
 void
 st_password_entry_hide_password (StPasswordEntry *entry)
 {
-  ClutterActor *clutter_text;
   StPasswordEntryPrivate *priv;
+  ClutterActor *clutter_text;
 
   g_return_if_fail (ST_IS_PASSWORD_ENTRY (entry));
 
