@@ -41,6 +41,7 @@ struct _StPasswordEntryPrivate
 {
   ClutterActor *peek_password_icon;
   gboolean      capslock_warning_shown;
+  gboolean      password_shown;
 };
 
 G_DEFINE_TYPE_WITH_PRIVATE (StPasswordEntry, st_password_entry, ST_TYPE_ENTRY);
@@ -83,7 +84,7 @@ st_password_entry_dispose (GObject *object)
 static void
 st_password_entry_secondary_icon_clicked (StEntry *entry)
 {
-
+  st_password_entry_toggle_peek_password (ST_PASSWORD_ENTRY (entry));
 	g_print ("Secondary icon clicked\n");
 }
 
@@ -111,7 +112,6 @@ static void
 st_password_entry_init (StPasswordEntry *entry)
 {
   StPasswordEntryPrivate *priv = ST_PASSWORD_ENTRY_PRIV (entry);
-  ClutterActor *clutter_text;
 
   st_entry_set_text (ST_ENTRY (entry), "");
 
@@ -120,10 +120,7 @@ st_password_entry_init (StPasswordEntry *entry)
                                            "icon-name", "eye-not-looking-symbolic",
                                            NULL);
   st_entry_set_secondary_icon (ST_ENTRY(entry), priv->peek_password_icon);
-
-
-  clutter_text = st_entry_get_clutter_text (ST_ENTRY (entry));
-  clutter_text_set_password_char (CLUTTER_TEXT (clutter_text), BLACK_CIRCLE);
+  st_password_entry_hide_password (entry);
 
   st_entry_set_input_purpose (ST_ENTRY (entry), CLUTTER_INPUT_CONTENT_PURPOSE_PASSWORD);
 }
@@ -141,13 +138,50 @@ st_password_entry_new (void)
 void
 st_password_entry_show_password (StPasswordEntry *entry)
 {
+  ClutterActor *clutter_text;
+  StPasswordEntryPrivate *priv;
 
+  g_return_if_fail (ST_IS_PASSWORD_ENTRY (entry));
+
+  priv = ST_PASSWORD_ENTRY_PRIV (entry);
+  if (priv->password_shown)
+    return;
+
+  clutter_text = st_entry_get_clutter_text (ST_ENTRY (entry));
+  clutter_text_set_password_char (CLUTTER_TEXT (clutter_text), 0);
+  st_icon_set_icon_name (ST_ICON (priv->peek_password_icon), "eye-open-negative-filled-symbolic");
+  priv->password_shown = TRUE;
 }
 
 void
 st_password_entry_hide_password (StPasswordEntry *entry)
 {
+  ClutterActor *clutter_text;
+  StPasswordEntryPrivate *priv;
 
+  g_return_if_fail (ST_IS_PASSWORD_ENTRY (entry));
+
+  priv = ST_PASSWORD_ENTRY_PRIV (entry);
+  if (!priv->password_shown)
+    return;
+
+  clutter_text = st_entry_get_clutter_text (ST_ENTRY (entry));
+  clutter_text_set_password_char (CLUTTER_TEXT (clutter_text), BLACK_CIRCLE);
+  st_icon_set_icon_name (ST_ICON (priv->peek_password_icon), "eye-not-looking-symbolic");
+  priv->password_shown = FALSE;
+}
+
+void
+st_password_entry_toggle_peek_password (StPasswordEntry *entry)
+{
+  StPasswordEntryPrivate *priv = ST_PASSWORD_ENTRY_PRIV (entry);
+
+  g_return_if_fail (ST_IS_PASSWORD_ENTRY (entry));
+
+  if (priv->password_shown)
+    st_password_entry_hide_password (entry);
+  else
+    st_password_entry_show_password (entry);
 }
 
 gboolean

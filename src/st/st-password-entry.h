@@ -46,6 +46,7 @@ struct _StPasswordEntry
 StPasswordEntry    *st_password_entry_new                  (void);
 void                st_password_entry_show_password        (StPasswordEntry *entry);
 void                st_password_entry_hide_password        (StPasswordEntry *entry);
+void                st_password_entry_toggle_peek_password (StPasswordEntry *entry);
 gboolean            st_password_entry_get_caps_lock_status (StPasswordEntry *entry);
 
 G_END_DECLS
